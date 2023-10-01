@@ -24,8 +24,8 @@ if __name__ == '__main__':
     #########################################################################################
 
     ########################### initialization ##############################################
-    env = Environment(obs=None)
-    my_car = Car_Dynamics(start[0], start[1], 0, 0, 0, 0, length=4, dt=0.17, Gama=0)
+    env = Environment(obstacles=None)
+    my_car = Car_Dynamics(start[0], start[1], 0, 0, length=4, dt=0.17)
 
     res = env.render(my_car.x, my_car.y, my_car.psi, 0)
     cv2.imshow('environment', res)
@@ -33,11 +33,12 @@ if __name__ == '__main__':
     #############################################################################################
 
     ################################## open loop command array ##################################################
-    torque_arr = np.random.rand(100) * 100 # TODO: check the possible value of torque
-    torque_arr[-1] = 0.0
-    delta_arr = np.random.rand(100)
-    delta_arr[-1] = 0.0
-    command_len = int(np.prod(torque_arr.shape))
+    acc_arr = np.random.rand(100) # TODO: check the possible value of acc
+    acc_arr[-1] = 0.0
+    # delta_arr = np.random.rand(100)
+    # delta_arr[-1] = 0.0
+    delta_arr = np.zeros_like(acc_arr)
+    command_len = int(np.prod(acc_arr.shape))
     #############################################################################################
 
     ################################## open loop control ##################################################
@@ -47,12 +48,12 @@ if __name__ == '__main__':
 
     print('driving in random path ...')
     for i in range(command_len):
-        torque = torque_arr[i]
+        acc = acc_arr[i]
         delta = delta_arr[i]
-        my_car.update_state(my_car.move(torque,  delta))
+        my_car.update_state(my_car.move(acc,  delta))
         res = env.render(my_car.x, my_car.y, my_car.psi, delta)
         point = np.array([my_car.x, my_car.y]) # TODO: check the point definition
-        logger.log(point, my_car, torque, delta)
+        logger.log(point, my_car, acc, delta)
         cv2.imshow('environment', res)
         key = cv2.waitKey(1)
         if key == ord('s'):

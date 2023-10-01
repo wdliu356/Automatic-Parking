@@ -79,12 +79,15 @@ if __name__ == '__main__':
 
     # x = t
     # y = 50
-
+    acc_path_arr = list()
+    delta_path_arr = list()
     print('driving to destination ...')
     for i,point in enumerate(interpolated_path):
             
             acc, delta = controller.optimize(my_car, interpolated_path[i:i+MPC_HORIZON])
             my_car.update_state(my_car.move(acc,  delta))
+            acc_path_arr.append(acc)
+            delta_path_arr.append(delta)
             res = env.render(my_car.x, my_car.y, my_car.psi, delta)
             logger.log(point, my_car, acc, delta)
             cv2.imshow('environment', res)
@@ -94,6 +97,8 @@ if __name__ == '__main__':
 
 
     sleep(2)
+    print("acc_path_arr: ", acc_path_arr)
+    print("delta_path_arr: ", delta_path_arr)
 
     for i,point in enumerate(interpolated_park_path):
             

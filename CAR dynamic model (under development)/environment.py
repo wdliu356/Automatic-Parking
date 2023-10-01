@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 class Environment:
-    def __init__(self,obstacles):
+    def __init__(self,obstacles=None):
         self.margin = 5
         #coordinates are in [x,y] format
         self.car_length = 80
@@ -30,7 +30,8 @@ class Environment:
         self.background = np.ones((1000+20*self.margin,1000+20*self.margin,3))
         self.background[10:1000+20*self.margin:10,:] = np.array([200,200,200])/255
         self.background[:,10:1000+20*self.margin:10] = np.array([200,200,200])/255
-        self.place_obstacles(obstacles)
+        if obstacles is not None:
+            self.place_obstacles(obstacles)
                 
     def place_obstacles(self, obs):
         obstacles = np.concatenate([np.array([[0,i] for i in range(100+2*self.margin)]),

@@ -85,10 +85,14 @@ if __name__ == '__main__':
 
     ################################## control ##################################################
     print('driving to destination ...')
+    acc_path_arr = list()
+    delta_path_arr = list()
     for i,point in enumerate(final_path):
         
             acc, delta = controller.optimize(my_car, final_path[i:i+MPC_HORIZON])
             my_car.update_state(my_car.move(acc,  delta))
+            acc_path_arr.append(acc)
+            delta_path_arr.append(delta)
             res = env.render(my_car.x, my_car.y, my_car.psi, delta)
             logger.log(point, my_car, acc, delta)
             cv2.imshow('environment', res)
@@ -96,6 +100,11 @@ if __name__ == '__main__':
             if key == ord('s'):
                 cv2.imwrite('res.png', res*255)
 
+    print("acc_path_arr: ", acc_path_arr)
+    print("delta_path_arr: ", delta_path_arr)
+
+    print("len of acc_path_arr: ", len(acc_path_arr))
+    print("len of delta_path_arr: ", len(delta_path_arr))
     # zeroing car steer
     res = env.render(my_car.x, my_car.y, my_car.psi, 0)
     logger.save_data()
