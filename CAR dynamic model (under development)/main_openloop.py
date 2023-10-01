@@ -24,7 +24,7 @@ if __name__ == '__main__':
     #########################################################################################
 
     ########################### initialization ##############################################
-    env = Environment(obs=None)
+    env = Environment(obstacles=None)
     my_car = Car_Dynamics(start[0], start[1], 0, 0, 0, 0, length=4, dt=0.17, Gama=0)
 
     res = env.render(my_car.x, my_car.y, my_car.psi, 0)
@@ -33,10 +33,11 @@ if __name__ == '__main__':
     #############################################################################################
 
     ################################## open loop command array ##################################################
-    torque_arr = np.random.rand(100) * 100 # TODO: check the possible value of torque
+    torque_arr = np.random.rand(100) * 1000 # TODO: check the possible value of torque
     torque_arr[-1] = 0.0
-    delta_arr = np.random.rand(100)
-    delta_arr[-1] = 0.0
+    # delta_arr = np.random.rand(100)
+    # delta_arr[-1] = 0.0
+    delta_arr = np.zeros_like(torque_arr)
     command_len = int(np.prod(torque_arr.shape))
     #############################################################################################
 
