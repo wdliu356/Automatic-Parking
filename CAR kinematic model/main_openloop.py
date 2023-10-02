@@ -75,6 +75,7 @@ if __name__ == '__main__':
 
     # zeroing car steer
     res = env.render(my_car.x, my_car.y, my_car.psi, 0)
+    # cv2.imwrite('res.png', res*255)
     logger.save_data()
     cv2.imshow('environment', res)
     key = cv2.waitKey(1)
