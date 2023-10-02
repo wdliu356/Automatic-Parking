@@ -5,7 +5,7 @@ import argparse
 
 from environment import Environment, Parking1
 from pathplanning import PathPlanning, ParkPathPlanning
-from control import Car_Dynamics, MPC_Controller
+from bicycle_control import Car_Dynamics
 from utils import angle_of_line, DataLogger
 
 
@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     ########################### initialization ##############################################
     env = Environment(obstacles=None)
-    my_car = Car_Dynamics(start[0], start[1], 0, 0, length=4, dt=0.17)
+    my_car = Car_Dynamics(start[0], start[1], 0.0, 0, 0, length=2.54, dt=0.17, a=1.14)
 
     res = env.render(my_car.x, my_car.y, my_car.psi, 0)
     cv2.imshow('environment', res)
@@ -33,11 +33,14 @@ if __name__ == '__main__':
     #############################################################################################
 
     ################################## open loop command array ##################################################
-    acc_arr = np.random.rand(100) # TODO: check the possible value of acc
+    # acc_arr = np.random.rand(100) # TODO: check the possible value of acc
+    acc_arr = -np.ones(100) * 0 # TODO: check the possible value of acc
     acc_arr[-1] = 0.0
     # delta_arr = np.random.rand(100)
     # delta_arr[-1] = 0.0
-    delta_arr = np.zeros_like(acc_arr)
+    delta_dot_arr = np.zeros_like(acc_arr)
+    delta_dot_arr[:50] = 0.0174
+    # delta_dot_arr[50:] = -0.0174
     command_len = int(np.prod(acc_arr.shape))
     #############################################################################################
 
@@ -49,11 +52,11 @@ if __name__ == '__main__':
     print('driving in random path ...')
     for i in range(command_len):
         acc = acc_arr[i]
-        delta = delta_arr[i]
-        my_car.update_state(my_car.move(acc,  delta))
-        res = env.render(my_car.x, my_car.y, my_car.psi, delta)
+        delta_dot = delta_dot_arr[i]
+        my_car.update_state(my_car.move(acc,  delta_dot))
+        res = env.render(my_car.x, my_car.y, my_car.psi, my_car.delta)
         point = np.array([my_car.x, my_car.y]) # TODO: check the point definition
-        logger.log(point, my_car, acc, delta)
+        logger.log(point, my_car, acc, delta_dot)
         cv2.imshow('environment', res)
         key = cv2.waitKey(1)
         if key == ord('s'):

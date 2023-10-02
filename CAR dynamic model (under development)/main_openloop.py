@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     ########################### initialization ##############################################
     env = Environment(obstacles=None)
-    my_car = Car_Dynamics(start[0], start[1], 0, 3.0, 0, 0, length=4, dt=0.1, Gama=0)
+    my_car = Car_Dynamics(start[0], start[1], 0, 0.0, 0, 0, length=4, dt=0.1, Gama=0)
 
     res = env.render(my_car.x, my_car.y, my_car.psi, 0)
     cv2.imshow('environment', res)
@@ -35,14 +35,14 @@ if __name__ == '__main__':
     ################################## open loop command array ##################################################
     # torque_arr = np.random.rand(50) * 10 # TODO: check the possible value of torque
     torque_arr = np.zeros(500) * 5
-    torque_arr[:250] = 0
-    torque_arr[250:] = 0
+    torque_arr[:50] = 5000
+    torque_arr[50:] = 0
     torque_arr[-1] = 0.0
     # delta_arr = np.random.rand(100)
     # delta_arr[-1] = 0.0
     delta_arr = -np.zeros_like(torque_arr)
-    delta_arr[:250] = 0.0174 * 5
-    delta_arr[250:] = - 0.0174 * 5
+    # delta_arr[:250] = 0.0174 * 5
+    # delta_arr[250:] = - 0.0174 * 5
     # delta_arr = np.zeros_like(torque_arr)
     command_len = int(np.prod(torque_arr.shape))
     #############################################################################################

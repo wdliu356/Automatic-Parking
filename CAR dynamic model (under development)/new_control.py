@@ -110,20 +110,20 @@ class Car_Dynamics:
         x_dot = self.u*math.cos(self.psi) - self.v*math.sin(self.psi)
         y_dot = self.u*math.sin(self.psi) + self.v*math.cos(self.psi)
         psi_dot = self.r
-        if self.u > 0.0:
+        if self.u > 0.01:
             u_dot = (-0.5*par['rho']*par['Cd']*par['A']*(self.u + par['uw'])**2 - par['f']*par['m']*par['g'] + par['Nw']*Fx)/par['m']
-        else:
+        elif self.u < -0.01:
             u_dot = (0.5*par['rho']*par['Cd']*par['A']*(self.u + par['uw'])**2 + par['f']*par['m']*par['g'] + par['Nw']*Fx)/par['m']
 
-        # else:
-        #     if par['f']*par['m']*par['g'] > abs(par['Nw']*Fx):
-        #         u_dot = 0.0
-        #     else:
-        #         if Fx > 0.0:
-        #             u_dot = (-par['f']*par['m']*par['g'] + par['Nw']*Fx)/par['m']
-        #         else:
-        #             u_dot = (par['f']*par['m']*par['g'] + par['Nw']*Fx)/par['m']
-        # print("u_dot: ", u_dot)
+        else:
+            if par['f']*par['m']*par['g'] > abs(par['Nw']*Fx):
+                u_dot = 0.0
+            else:
+                if Fx > 0.0:
+                    u_dot = (-par['f']*par['m']*par['g'] + par['Nw']*Fx)/par['m']
+                else:
+                    u_dot = (par['f']*par['m']*par['g'] + par['Nw']*Fx)/par['m']
+        print("u_dot: ", u_dot)
         w_dot = (c2 - par['rw']*Fx - par['fw']*Fz - par['bw']*self.w)/par['J']
         v_dot = (Fyf + Fyr)/par['m'] - self.u*self.r
         print("v_dot: ", v_dot)
