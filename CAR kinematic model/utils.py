@@ -14,6 +14,7 @@ def make_square(x, y, width):
                       [[i,y+int(width/2)] for i in range(x-int(width/2),x+int(width/2))]) 
     return square
 
+
 class DataLogger:
     def __init__(self):
         self.path = []
