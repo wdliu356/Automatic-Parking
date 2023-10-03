@@ -34,14 +34,15 @@ if __name__ == '__main__':
 
     ################################## open loop command array ##################################################
     # acc_arr = np.random.rand(100) # TODO: check the possible value of acc
-    acc_arr = np.ones(100) * 0.2 # TODO: check the possible value of acc
+    acc_arr = np.ones(200) * 0.3 # TODO: check the possible value of acc
     acc_arr[50:] = -0.1
     acc_arr[-1] = 0.0
     # delta_arr = np.random.rand(100)
     # delta_arr[-1] = 0.0
     delta_dot_arr = np.zeros_like(acc_arr)
     delta_dot_arr[:50] = 0.0174
-    delta_dot_arr[50:] = -0.0174 * 3
+    delta_dot_arr[50:75] = -0.0174 * 3
+    delta_dot_arr[75:] = 0.0
     command_len = int(np.prod(acc_arr.shape))
     #############################################################################################
 
@@ -51,13 +52,13 @@ if __name__ == '__main__':
     # y = 50
 
     size = (700, 700)
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    # fourcc = cv2.VideoWriter_fourcc(*'XVID')
     # fourcc = cv2.VideoWriter_fourcc(*'MJPG') # Encoder form!!
-    # fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     # fourcc = cv2.VideoWriter_fourcc(*'mpv4')
     # fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
     # fourcc = cv2.VideoWriter_fourcc('U', '2', '6', '3')
-    videowrite = cv2.VideoWriter('/home/zlj/Documents/ROB599-Autonomous Vehicles/project/Automatic-Parking/CAR kinematic model/log results/cartoon.avi', fourcc, 20, size)
+    videowrite = cv2.VideoWriter('/home/zlj/Documents/ROB599-Autonomous Vehicles/project/Automatic-Parking/CAR kinematic model/log results/cartoon.mp4', fourcc, 20, size)
 
     print('driving in random path ...')
     for i in range(command_len):
@@ -69,7 +70,7 @@ if __name__ == '__main__':
         logger.log(point, my_car, acc, my_car.delta)
         cv2.imshow('environment', res)
         key = cv2.waitKey(1)
-        videowrite.write(res.astype(np.uint8))
+        videowrite.write((res*255).astype(np.uint8))
         if key == ord('s'):
             cv2.imwrite('res.png', res*255)
 
@@ -79,7 +80,7 @@ if __name__ == '__main__':
     logger.save_data()
     cv2.imshow('environment', res)
     key = cv2.waitKey(1)
-    videowrite.write(res.astype(np.uint8))
+    videowrite.write((res*255).astype(np.uint8))
     videowrite.release()
 
     sleep(10)
