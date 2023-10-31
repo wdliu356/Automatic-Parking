@@ -47,6 +47,15 @@ class Car_Dynamics:
         self.psi = self.state[2,0]
         self.v = self.state[3,0]
 
+    def goal_state_reached(self, goal_state):
+        curr_state = np.array([self.x, self.y, self.psi])
+        state_diff = np.abs(curr_state - goal_state)
+        state_diff[2] = np.min([state_diff[2], 2*np.pi - state_diff[2]])
+        if np.linalg.norm(state_diff) < 0.5:
+            return True
+        else:
+            return False
+
 
     
 class MPC_Controller:
