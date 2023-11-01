@@ -64,14 +64,12 @@ if __name__ == '__main__':
     #     path = np.vstack([path, end])
 
 
-    my_car = Car_Dynamics(start[0], start[1], np.deg2rad(args.psi_start), 0, length=4, dt=0.2, a=1.14)
+    
     MPC_HORIZON = 5
     # controller = MPC_Controller()
     controller = Linear_MPC_Controller()
 
-    res = env.render(my_car.x, my_car.y, my_car.psi, 0)
-    cv2.imshow('environment', res)
-    key = cv2.waitKey(1)
+    
     #############################################################################################
 
     ############################# path planning #################################################
@@ -113,6 +111,11 @@ if __name__ == '__main__':
     #############################################################################################
 
     ################################## control ##################################################
+    my_car = Car_Dynamics(start[0], start[1], interpolated_path[0,2], 0, length=4, dt=0.2, a=1.14)
+    res = env.render(my_car.x, my_car.y, my_car.psi, 0)
+    cv2.imshow('environment', res)
+    key = cv2.waitKey(1)
+
     print('driving to destination ...')
     acc_path_arr = list()
     delta_path_arr = list()

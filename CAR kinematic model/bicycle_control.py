@@ -50,11 +50,14 @@ class Car_Dynamics:
     def goal_state_reached(self, goal_state):
         curr_state = np.array([self.x, self.y, self.psi])
         state_diff = np.abs(curr_state - goal_state)
-        state_diff[2] = np.min([state_diff[2], 2*np.pi - state_diff[2]])
-        if np.linalg.norm(state_diff) < 5:
+        state_diff[2] = np.min([state_diff[2], 2*np.pi - state_diff[2]]) * 0.1
+        if np.linalg.norm(state_diff) < 3:
             return True
         else:
             return False
+    
+    def predict_state(self, u_k):
+        return self.state + self.move(u_k[0], u_k[1])*self.dt
 
 
     
@@ -100,11 +103,13 @@ class Linear_MPC_Controller:
     def __init__(self):
         self.horiz = None
         self.R = np.diag([0.01, 0.01])                 # input cost matrix
-        self.Rd = np.diag([0.01, 10.0])                 # input difference cost matrix
-        self.Q = np.diag([1.0, 1.0, 1.0])                   # state cost matrix
+        self.Rd = np.diag([0.01, 1.0])                 # input difference cost matrix
+        # self.Q = np.diag([1.0, 1.0, 1.0])
+        self.Q = np.diag([5.0, 5.0, 1.0])                   # state cost matrix
         self.Qf = self.Q                               # state final matrix
         self.dt=0.01   
-        self.L=4                          
+        self.L=4      
+        self.v_cost = 0.05                    
 
     def make_model(self, my_car, u):        
         # matrices
@@ -159,7 +164,11 @@ class Linear_MPC_Controller:
         # print(s.shape)
         # print((Ap@my_car.state).shape)
         # print((Bp@u).shape)
-        C = self.dt*(s - Ap@my_car.state - (Bp@u).reshape(4,1))
+        # C = self.dt*(s - Ap@my_car.state - (Bp@u).reshape(4,1))
+        C = np.array([[v* np.sin(psi+beta)*psi - b11*delta],
+                      [-v*np.cos(psi+beta)*psi - b21*delta],
+                      [-v*delta*np.cos(beta)/(self.L*np.cos(delta)**2)+delta*b*v*np.sin(beta)*np.tan(delta)/(Q*L*np.cos(delta)**2)],
+                      [0]]) * self.dt
         
         return A, B, C
 
@@ -175,28 +184,34 @@ class Linear_MPC_Controller:
             # delta = u_k[1,i]
             A,B,C = self.make_model(mpc_car, u_k[:,i])
             # Print all the shapes
-            print('********************************')
-            print("A: ", A.shape)
-            print("B: ", B.shape)
-            print("C: ", C.shape)
-            print("old_state: ", old_state.shape)
-            print("u_k: ", u_k[:, i].shape)
+            # print('********************************')
+            # print("A: ", A.shape)
+            # print("B: ", B.shape)
+            # print("C: ", C.shape)
+            # print("old_state: ", old_state.shape)
+            # print("u_k: ", u_k[:, i].shape)
 
             new_state = A@old_state + B@(u_k[:,i].reshape([2,1])) + C
-            print("New_state: ", new_state.shape)
-            z_k[:,i] = [new_state[0], new_state[1], new_state[2]]
+            # predict_state = mpc_car.predict_state(u_k[:,i])
+            # See if the predict state is the same as the new state
+            # print("new_state: ", new_state)
+            # print("predict_state: ", predict_state)
+            # print("difference: ", new_state - predict_state)
+            # print("New_state: ", new_state.shape)
+            z_k[:,i] = np.array([new_state[0], new_state[1], new_state[2]]).reshape(3)
             cost += np.sum(self.R@(u_k[:,i]**2))
             cost += np.sum(self.Q@((desired_state[:,i]-z_k[:,i])**2))
+            cost += new_state[3]**2*self.v_cost
             if i < (self.horiz-1):     
                 cost += np.sum(self.Rd@((u_k[:,i+1] - u_k[:,i])**2))
             mpc_car.update_with_new_state(new_state)
             old_state = new_state
-            print(cost)
+            # print(cost)
         return cost
 
     def optimize(self, my_car, points):
         self.horiz = points.shape[0]
-        bnd = [(-5, 5),(np.deg2rad(-60), np.deg2rad(60))]*self.horiz
+        bnd = [(-5, 0.1),(np.deg2rad(-60), np.deg2rad(60))]*self.horiz
         # cons = ({'type': 'ineq', 'fun': my_car.delta + np.deg2rad(60)},{'type': 'ineq', 'fun': - my_car.delta + np.deg2rad(60)})
         result = minimize(self.mpc_cost, args=(my_car, points), x0 = np.zeros((2*self.horiz)), method='SLSQP', bounds = bnd)
         return result.x[0],  result.x[1]
