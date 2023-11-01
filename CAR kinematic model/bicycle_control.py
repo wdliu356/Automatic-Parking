@@ -51,7 +51,7 @@ class Car_Dynamics:
         curr_state = np.array([self.x, self.y, self.psi])
         state_diff = np.abs(curr_state - goal_state)
         state_diff[2] = np.min([state_diff[2], 2*np.pi - state_diff[2]])
-        if np.linalg.norm(state_diff) < 0.5:
+        if np.linalg.norm(state_diff) < 5:
             return True
         else:
             return False
@@ -100,7 +100,7 @@ class Linear_MPC_Controller:
     def __init__(self):
         self.horiz = None
         self.R = np.diag([0.01, 0.01])                 # input cost matrix
-        self.Rd = np.diag([0.01, 1.0])                 # input difference cost matrix
+        self.Rd = np.diag([0.01, 10.0])                 # input difference cost matrix
         self.Q = np.diag([1.0, 1.0, 1.0])                   # state cost matrix
         self.Qf = self.Q                               # state final matrix
         self.dt=0.01   
@@ -117,10 +117,14 @@ class Linear_MPC_Controller:
 
         beta = np.arctan((b * np.tan(delta)) / (self.L))
         
+        # Ap = np.array([[0, 0, -v*np.sin(psi+beta), np.cos(psi+beta)],
+        #           [0, 0, v*np.cos(psi+beta), np.sin(psi+beta)],
+        #           [0, 0, 0, np.tan(beta)/b/np.sqrt(np.tan(beta)**2+1)],
+        #           [0, 0, 0, 0]])
         Ap = np.array([[0, 0, -v*np.sin(psi+beta), np.cos(psi+beta)],
-                  [0, 0, v*np.cos(psi+beta), np.sin(psi+beta)],
-                  [0, 0, 0, np.tan(beta)/b/np.sqrt(np.tan(beta)**2+1)],
-                  [0, 0, 0, 0]])
+            [0, 0, v*np.cos(psi+beta), np.sin(psi+beta)],
+            [0, 0, 0, np.tan(delta)*np.cos(beta)/self.L],
+            [0, 0, 0, 0]])
         A = np.eye(4) + self.dt*Ap
         # A = np.array([[1, 0, -self.dt*v*np.sin(psi+beta), self.dt*np.cos(psi+beta)],
         #           [0, 1, self.dt*v*np.cos(psi+beta), self.dt*np.sin(psi+beta)],
@@ -131,10 +135,19 @@ class Linear_MPC_Controller:
         #           [0, self.dt*self.b*v*np.cos(psi+beta)/((delta**2+1)*(np.tan(beta)**2+1)*(self.b+self.a))],
         #           [0, self.dt*v/((delta**2+1)*(np.tan(beta)**2+1)**(3/2)*(self.b+self.a))],
         #           [self.dt,0]])
-        Bp = np.array([[0, -b*v*np.sin(psi+beta)/((delta**2+1)*(np.tan(beta)**2+1)*(b+a))],
-                  [0, b*v*np.cos(psi+beta)/((delta**2+1)*(np.tan(beta)**2+1)*(b+a))],
-                  [0, v/((delta**2+1)*(np.tan(beta)**2+1)**(3/2)*(b+a))],
-                  [1,0]])
+        # Bp = np.array([[0, -b*v*np.sin(psi+beta)/((delta**2+1)*(np.tan(beta)**2+1)*(b+a))],
+        #           [0, b*v*np.cos(psi+beta)/((delta**2+1)*(np.tan(beta)**2+1)*(b+a))],
+        #           [0, v/((delta**2+1)*(np.tan(beta)**2+1)**(3/2)*(b+a))],
+        #           [1,0]])
+        L = self.L
+        Q = b**2*L*np.tan(delta)**2 + L
+        b11 = -b*v*np.sin(psi+beta)/(Q*np.cos(delta)**2)
+        b21 = b*v*np.cos(psi+beta)/(Q*np.cos(delta)**2)
+        b31 = v*(np.cos(beta) - b*np.sin(beta)*np.tan(delta)/Q)*(np.tan(delta)**2+1)/L
+        Bp = np.array([[0, b11],
+                       [0, b21],
+                       [0, b31],
+                       [1,0]])
         
         # # 4*2 
 
@@ -162,16 +175,16 @@ class Linear_MPC_Controller:
             # delta = u_k[1,i]
             A,B,C = self.make_model(mpc_car, u_k[:,i])
             # Print all the shapes
-            # print('********************************')
-            # print("A: ", A.shape)
-            # print("B: ", B.shape)
-            # print("C: ", C.shape)
-            # print("old_state: ", old_state.shape)
-            # print("u_k: ", u_k.shape)
+            print('********************************')
+            print("A: ", A.shape)
+            print("B: ", B.shape)
+            print("C: ", C.shape)
+            print("old_state: ", old_state.shape)
+            print("u_k: ", u_k[:, i].shape)
 
-            new_state = A@old_state + B@u_k + C
-        
-            z_k[:,i] = [new_state[0,0], new_state[1,0], new_state[2,0]]
+            new_state = A@old_state + B@(u_k[:,i].reshape([2,1])) + C
+            print("New_state: ", new_state.shape)
+            z_k[:,i] = [new_state[0], new_state[1], new_state[2]]
             cost += np.sum(self.R@(u_k[:,i]**2))
             cost += np.sum(self.Q@((desired_state[:,i]-z_k[:,i])**2))
             if i < (self.horiz-1):     

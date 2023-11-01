@@ -52,8 +52,8 @@ if __name__ == '__main__':
     env = Environment(obs)
     my_car = Car_Dynamics(start[0], start[1], 0, np.deg2rad(args.psi_start), length=4, dt=0.2)
     MPC_HORIZON = 5
-    controller = MPC_Controller()
-    # controller = Linear_MPC_Controller()
+    # controller = MPC_Controller()
+    controller = Linear_MPC_Controller()
 
     res = env.render(my_car.x, my_car.y, my_car.psi, 0)
     cv2.imshow('environment', res)
