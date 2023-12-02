@@ -42,9 +42,9 @@ class Environment:
         for ob in obstacles:
             self.background[ob[1]:ob[1]+10,ob[0]:ob[0]+10]=0
     
-    def draw_path(self, path):
+    def draw_path(self, path, color=np.array([0,0,255])):
         path = np.array(path)*10
-        color = np.random.randint(0,150,3)/255
+        color = color/255
         path = path.astype(int)
         for p in path:
             self.background[p[1]+10*self.margin:p[1]+10*self.margin+3,p[0]+10*self.margin:p[0]+10*self.margin+3]=color

@@ -103,6 +103,9 @@ if __name__ == '__main__':
     final_path = interpolated_path
     print("final_path: ", final_path)
 
+    # Save the final_path to a npy
+    np.save('final_path.npy', final_path)
+
     env.draw_path(interpolated_path)
     # env.draw_path(interpolated_park_path)
 
@@ -120,6 +123,13 @@ if __name__ == '__main__':
     acc_path_arr = list()
     delta_path_arr = list()
 
+    ref_x = []
+    ref_y = []
+    ref_psi = []
+
+    his_x = []
+    his_y = []
+    his_psi = []
     while len(final_path) > 0:
         point = final_path[0]
         acc, delta = controller.optimize(my_car, final_path[0:MPC_HORIZON])
@@ -129,6 +139,16 @@ if __name__ == '__main__':
         acc_path_arr.append(acc)
         delta_path_arr.append(delta)
         res = env.render(my_car.x, my_car.y, my_car.psi, delta)
+
+        # Save history to array
+        his_x.append(my_car.x)
+        his_y.append(my_car.y)
+        his_psi.append(my_car.psi)
+
+        ref_x.append(point[0])
+        ref_y.append(point[1])
+        ref_psi.append(point[2])
+
         logger.log(point, my_car, acc, delta)
         cv2.imshow('environment', res)
         key = cv2.waitKey(1)
@@ -138,6 +158,13 @@ if __name__ == '__main__':
             final_path = final_path[1:]
             # print("final_path: ", final_path)
 
+    # Save history and ref to npy
+    np.save('his_x.npy', his_x)
+    np.save('his_y.npy', his_y)
+    np.save('his_psi.npy', his_psi)
+    np.save('ref_x.npy', ref_x)
+    np.save('ref_y.npy', ref_y)
+    np.save('ref_psi.npy', ref_psi)
 
     # for i,point in enumerate(final_path):
         

@@ -66,7 +66,7 @@ class MPC_Controller:
         self.horiz = None
         self.R = np.diag([0.01, 0.01])                 # input cost matrix
         self.Rd = np.diag([0.01, 1.0])                 # input difference cost matrix
-        self.Q = np.diag([1.0, 1.0, 1.0])                   # state cost matrix
+        self.Q = np.diag([1.0, 1.0, 1.0])              # state cost matrix
         self.Qf = self.Q                               # state final matrix
 
     def mpc_cost(self, u_k, my_car, points):
@@ -215,3 +215,7 @@ class Linear_MPC_Controller:
         # cons = ({'type': 'ineq', 'fun': my_car.delta + np.deg2rad(60)},{'type': 'ineq', 'fun': - my_car.delta + np.deg2rad(60)})
         result = minimize(self.mpc_cost, args=(my_car, points), x0 = np.zeros((2*self.horiz)), method='SLSQP', bounds = bnd)
         return result.x[0],  result.x[1]
+    
+
+######################################################################################################################################################################
+class MPPI_controller
