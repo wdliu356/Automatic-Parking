@@ -4,7 +4,7 @@ from time import sleep
 import argparse
 
 from environment import Environment, Parking1
-from pathplanning import PathPlanning, ParkPathPlanning, interpolate_path
+from pathplanning_h_astar import PathPlanning, interpolate_path
 from bicycle_control import Car_Dynamics, MPC_Controller, Linear_MPC_Controller
 from utils import angle_of_line, make_square, DataLogger
 
@@ -73,35 +73,35 @@ if __name__ == '__main__':
     #############################################################################################
 
     ############################# path planning #################################################
-    park_path_planner = ParkPathPlanning(obs)
+    # park_path_planner = ParkPathPlanning(obs)
     path_planner = PathPlanning(obs)
 
-    print('planning park scenario ...')
-    new_end, park_path, ensure_path1, ensure_path2 = park_path_planner.generate_park_scenario(int(start[0]),int(start[1]),int(end[0]),int(end[1]))
+    # print('planning park scenario ...')
+    # new_end, park_path, ensure_path1, ensure_path2 = park_path_planner.generate_park_scenario(int(start[0]),int(start[1]),int(end[0]),int(end[1]))
     
     print('routing to destination ...')
-    path = path_planner.plan_path(int(start[0]),int(start[1]),int(new_end[0]),int(new_end[1]))
+    path = path_planner.plan_path(start[0],start[1],0,0,end[0],end[1],-3.1416/2,0,0.1)
     # path = np.vstack([path, ensure_path1])
+    interpolated_path = path
 
 
-
-    print('interpolating ...')
-    interpolated_path = interpolate_path(path, sample_rate = 5)
-    # interpolated_path = path
-    interpolated_path = np.hstack([interpolated_path, np.zeros((len(interpolated_path),1))])
-    # Add a column at the end of the path for the car's orientation
-    # Set the orientation such that the current orientation heads toward next point
-    def angle_of_line(point1, point2):
-        return np.arctan2(point2[1]-point1[1], point2[0]-point1[0])
+    # print('interpolating ...')
+    # interpolated_path = interpolate_path(path, sample_rate = 5)
+    # # interpolated_path = path
+    # interpolated_path = np.hstack([interpolated_path, np.zeros((len(interpolated_path),1))])
+    # # Add a column at the end of the path for the car's orientation
+    # # Set the orientation such that the current orientation heads toward next point
+    # def angle_of_line(point1, point2):
+    #     return np.arctan2(point2[1]-point1[1], point2[0]-point1[0])
     
-    for i in range(len(interpolated_path)-1):
-        interpolated_path[i,2] = angle_of_line(interpolated_path[i], interpolated_path[i+1])
+    # for i in range(len(interpolated_path)-1):
+    #     interpolated_path[i,2] = angle_of_line(interpolated_path[i], interpolated_path[i+1])
     
-    print("interpolated_path: ", interpolated_path)
-    # Set the orientation of the last point to be the same as the second last point
-    interpolated_path[-1,2] = interpolated_path[-2,2]
-    final_path = interpolated_path
-    print("final_path: ", final_path)
+    # print("interpolated_path: ", interpolated_path)
+    # # Set the orientation of the last point to be the same as the second last point
+    # interpolated_path[-1,2] = interpolated_path[-2,2]
+    # final_path = interpolated_path
+    # print("final_path: ", final_path)
 
     env.draw_path(interpolated_path)
     # env.draw_path(interpolated_park_path)
