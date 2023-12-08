@@ -77,7 +77,7 @@ class Hybrid_AStarPlanner:
             y = self.y + dt*y_dot
             psi = self.psi + dt*psi_dot
             v = self.v + dt*v_dot
-            cost = self.cost + np.sqrt(x_dot**2 + y_dot**2 + psi_dot**2 + v_dot**2) + 0.1*np.abs(delta) + 0.1*np.abs(acc)
+            cost = self.cost + np.sqrt(0.35*x_dot**2 + 0.35*y_dot**2 + 0.2*psi_dot**2 + 0.1*v_dot**2 + 0.1*delta**2 + 0.1*acc**2)
             return [x,y,psi,v,cost,self.length,self.a]
 
     def planning(self, sx, sy, spsi, sv, gx, gy, gpsi, gv,dt):
@@ -108,8 +108,10 @@ class Hybrid_AStarPlanner:
                 break
 
             current = pq.get()[2]### get the top of the queue and remove it
-
-            if self.calc_heuristic(current, goal_node) <= 0.5:
+            dis = self.calc_heuristic(current, goal_node)
+            print("current: ", current.x, current.y, current.psi, current.v)
+            print("dis: ", dis)
+            if dis <= 0.5:
                 print("Find goal")
                 goal_node.parent = current
                 goal_node.cost = current.cost + self.calc_heuristic(current, goal_node)
@@ -122,7 +124,8 @@ class Hybrid_AStarPlanner:
             # expand_grid search grid based on motion model
             for i, _ in enumerate(self.motion):
                 node_info = current.update(dt,self.motion[i][0],self.motion[i][1])
-                node = self.Node(node_info[0], node_info[1], node_info[2], node_info[3], node_info[4], current, node_info[5], node_info[6])
+                # print("node_info: ", node_info)
+                node = self.Node(node_info[0], node_info[1], node_info[2], node_info[3], 0, current, node_info[5], node_info[6])
                 # n_id = self.calc_grid_index(node)
 
                 # If the node is not safe, do nothing
@@ -155,7 +158,7 @@ class Hybrid_AStarPlanner:
 
     @staticmethod
     def calc_heuristic(n1, n2):
-        weight = [1.0, 1.0, 1.0, 1.0]  # x, y, psi, v
+        weight = [0.35, 0.35, 0.2, 0.1]  # x, y, psi, v
         d = np.sqrt(weight[0]*(n1.x - n2.x)**2 + weight[1]*(n1.y - n2.y)**2 + weight[2]*(n1.psi - n2.psi)**2 + weight[3]*(n1.v - n2.v)**2)
         return d
 
@@ -221,9 +224,15 @@ class Hybrid_AStarPlanner:
     @staticmethod
     def get_motion_model():
         # acc, delta
-        motion = [[0.1,0],[0.1,np.deg2rad(60)], [0.1,np.deg2rad(-60)], [0.1,np.deg2rad(30)], [0.1,np.deg2rad(-30)],
-                   [-0.1,0], [-0.1,np.deg2rad(60)], [-0.1,np.deg2rad(-60)], [-0.1,np.deg2rad(30)], [-0.1,np.deg2rad(-30)],
-                   [0,0],[0,np.deg2rad(60)], [0,np.deg2rad(-60)], [0,np.deg2rad(30)], [0,np.deg2rad(-30)]]
+        # motion = [[0.1,0],[0.1,np.deg2rad(60)], [0.1,np.deg2rad(-60)], [0.1,np.deg2rad(30)], [0.1,np.deg2rad(-30)],
+        #            [-0.1,0], [-0.1,np.deg2rad(60)], [-0.1,np.deg2rad(-60)], [-0.1,np.deg2rad(30)], [-0.1,np.deg2rad(-30)],
+        #            [0,0],[0,np.deg2rad(60)], [0,np.deg2rad(-60)], [0,np.deg2rad(30)], [0,np.deg2rad(-30)]]
+
+        acc = 10
+        delta = 60
+        motion = [[acc, 0], [-acc, 0], [0, 0], 
+                  [acc, np.deg2rad(delta)], [-acc, np.deg2rad(delta)],
+                  [acc, np.deg2rad(-delta)], [-acc, np.deg2rad(-delta)]]
 
         return motion
 

@@ -49,8 +49,8 @@ if __name__ == '__main__':
     #############################################################################################
 
     ########################### initialization ##################################################
-    # env = Environment(obstacles=None)
-    env = Environment(obstacles=obs)
+    env = Environment(obstacles=None)
+    # env = Environment(obstacles=obs)
     # path = np.array([[20.5, 20.5],
     #                  [20.5, 30.5],
     #                  [30.5, 30.5],
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     # new_end, park_path, ensure_path1, ensure_path2 = park_path_planner.generate_park_scenario(int(start[0]),int(start[1]),int(end[0]),int(end[1]))
     
     print('routing to destination ...')
-    path = path_planner.plan_path(start[0],start[1],0,0,end[0],end[1],-3.1416/2,0,0.1)
+    path = path_planner.plan_path(start[0],start[1],0,0,end[0],end[1],0,0,1)
     # path = np.vstack([path, ensure_path1])
     interpolated_path = path
 
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     # print("final_path: ", final_path)
 
     # Save the final_path to a npy
-    np.save('final_path.npy', final_path)
+    # np.save('final_path.npy', final_path)
 
     env.draw_path(interpolated_path)
     # env.draw_path(interpolated_park_path)
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     #############################################################################################
 
     ################################## control ##################################################
-    my_car = Car_Dynamics(start[0], start[1], interpolated_path[0,2], 0, length=4, dt=0.2, a=1.14)
+    my_car = Car_Dynamics(start[0], start[1], 0, 0, length=4, dt=0.2, a=1.14)
     res = env.render(my_car.x, my_car.y, my_car.psi, 0)
     cv2.imshow('environment', res)
     key = cv2.waitKey(1)
