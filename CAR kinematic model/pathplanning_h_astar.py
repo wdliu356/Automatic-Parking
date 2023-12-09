@@ -85,6 +85,13 @@ class Hybrid_AStarPlanner:
             elif psi < -np.pi:
                 psi = psi + 2*np.pi
             v = self.v + dt*v_dot
+            if v > 2:
+                v = 2
+            elif v < -2:
+                v = -2
+            if v == 2 or v == -2:
+                acc = 0
+                v_dot = 0
             cost = self.cost + np.sqrt(0.35*x_dot**2 + 0.35*y_dot**2 + 0.2*psi_dot**2 + 0.1*v_dot**2 + 0.1*delta**2 + 0.1*acc**2)
             return [x,y,psi,v,cost,self.length,self.a]
 

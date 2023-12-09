@@ -82,7 +82,7 @@ if __name__ == '__main__':
     # new_end, park_path, ensure_path1, ensure_path2 = park_path_planner.generate_park_scenario(int(start[0]),int(start[1]),int(end[0]),int(end[1]))
     
     print('routing to destination ...')
-    path = path_planner.plan_path(start[0],start[1],0,0,end[0],end[1],np.pi/2,0,1)
+    path = path_planner.plan_path(start[0],start[1],0,0,41,32,np.pi/2,0,1)
     # path = path[:,0:2]
     # path = np.vstack([path, ensure_path1])
     # end = path[-1]
