@@ -49,6 +49,10 @@ class Hybrid_AStarPlanner:
         self.calc_obstacle_map(ox, oy)
         self.length = length
         self.a = a
+        self.x_res = 2
+        self.y_res = 2
+        self.psi_res = 0.25*np.pi
+        self.v_res = 0.3
 
     class Node:
         def __init__(self, x, y, psi, v, cost, parent, length, a):
@@ -76,6 +80,10 @@ class Hybrid_AStarPlanner:
             x = self.x + dt*x_dot
             y = self.y + dt*y_dot
             psi = self.psi + dt*psi_dot
+            if psi > np.pi:
+                psi = psi - 2*np.pi
+            elif psi < -np.pi:
+                psi = psi + 2*np.pi
             v = self.v + dt*v_dot
             cost = self.cost + np.sqrt(0.35*x_dot**2 + 0.35*y_dot**2 + 0.2*psi_dot**2 + 0.1*v_dot**2 + 0.1*delta**2 + 0.1*acc**2)
             return [x,y,psi,v,cost,self.length,self.a]
@@ -109,17 +117,17 @@ class Hybrid_AStarPlanner:
 
             current = pq.get()[2]### get the top of the queue and remove it
             dis = self.calc_heuristic(current, goal_node)
-            print("current: ", current.x, current.y, current.psi, current.v)
+            # print("current: ", current.x, current.y, current.psi, current.v)
             print("dis: ", dis)
-            if dis <= 0.5:
-                print("Find goal")
+            if dis <= 1:
+                # print("Find goal")
                 goal_node.parent = current
                 goal_node.cost = current.cost + self.calc_heuristic(current, goal_node)
                 break
 
 
             # Add it to the closed set
-            test_set.add((current.x, current.y, current.psi, current.v))
+            test_set.add((int(current.x/self.x_res), int(current.y/self.y_res), int(current.psi/self.psi_res), int(current.v/self.v_res)))
 
             # expand_grid search grid based on motion model
             for i, _ in enumerate(self.motion):
@@ -129,7 +137,7 @@ class Hybrid_AStarPlanner:
                 # n_id = self.calc_grid_index(node)
 
                 # If the node is not safe, do nothing
-                if (node.x, node.y, node.psi, node.v) in test_set:
+                if (int(node.x/self.x_res), int(node.y/self.y_res), int(node.psi/self.psi_res), int(node.v/self.v_res)) in test_set:
                     continue
                 if not self.verify_node(node):
                     continue
@@ -137,9 +145,9 @@ class Hybrid_AStarPlanner:
                 pq.put((node.cost + self.calc_heuristic(node, goal_node),id, node))
                 # print(i)
 
-        rx, ry = self.calc_final_path(goal_node,start_node)
+        rx, ry, rpsi = self.calc_final_path(goal_node,start_node)
 
-        return rx, ry
+        return rx, ry, rpsi
 
     def calc_final_path(self, goal_node,start_node):
         # generate final course
@@ -149,17 +157,22 @@ class Hybrid_AStarPlanner:
             current = current.parent
             node_list.append(current)
         node_list.append(start_node)
-        node_list.reverse()
-        rx, ry = [], []
+        # node_list.reverse()
+        rx, ry, rpsi = [], [], []
         for node in node_list:
             rx.append(node.x)
             ry.append(node.y)
-        return rx, ry
+            rpsi.append(node.psi)
+        return rx, ry, rpsi
 
     @staticmethod
     def calc_heuristic(n1, n2):
-        weight = [0.35, 0.35, 0.2, 0.1]  # x, y, psi, v
+        weight = [0.3, 0.3, 0.5, 0.1]  # x, y, psi, v
         d = np.sqrt(weight[0]*(n1.x - n2.x)**2 + weight[1]*(n1.y - n2.y)**2 + weight[2]*(n1.psi - n2.psi)**2 + weight[3]*(n1.v - n2.v)**2)
+        # if d<0.5:
+        #     d = np.sqrt(4*(n1.psi - n2.psi)**2 + 1*(n1.v - n2.v)**2)
+        #     print("entered")
+        
         return d
 
     def calc_grid_position(self, index, min_position):
@@ -228,7 +241,7 @@ class Hybrid_AStarPlanner:
         #            [-0.1,0], [-0.1,np.deg2rad(60)], [-0.1,np.deg2rad(-60)], [-0.1,np.deg2rad(30)], [-0.1,np.deg2rad(-30)],
         #            [0,0],[0,np.deg2rad(60)], [0,np.deg2rad(-60)], [0,np.deg2rad(30)], [0,np.deg2rad(-30)]]
 
-        acc = 10
+        acc = 1
         delta = 60
         motion = [[acc, 0], [-acc, 0], [0, 0], 
                   [acc, np.deg2rad(delta)], [-acc, np.deg2rad(delta)],
@@ -261,10 +274,10 @@ class PathPlanning:
         self.a_star = Hybrid_AStarPlanner(self.ox, self.oy, self.grid_size, self.robot_radius, self.length, self.a)
 
     def plan_path(self,sx, sy,spsi,sv, gx, gy,gpsi,gv,dt):    
-        rx, ry = self.a_star.planning(sx+self.margin, sy+self.margin,spsi,sv, gx+self.margin, gy+self.margin,gpsi,gv,dt)
+        rx, ry, rpsi = self.a_star.planning(sx+self.margin, sy+self.margin,spsi,sv, gx+self.margin, gy+self.margin,gpsi,gv,dt)
         rx = np.array(rx)-self.margin+0.5
         ry = np.array(ry)-self.margin+0.5
-        path = np.vstack([rx,ry]).T
+        path = np.vstack([rx,ry,rpsi]).T
         return path[::-1]
 
 ############################################### Park Path Planner #################################################

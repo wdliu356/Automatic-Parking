@@ -31,6 +31,8 @@ if __name__ == '__main__':
     ########################## defining obstacles ###############################################
     parking1 = Parking1(args.parking)
     end, obs = parking1.generate_obstacles()
+    # print("end: ", end)
+    # obs = None
 
     # add squares
     # square1 = make_square(10,65,20)
@@ -49,25 +51,25 @@ if __name__ == '__main__':
     #############################################################################################
 
     ########################### initialization ##################################################
-    env = Environment(obstacles=None)
-    # env = Environment(obstacles=obs)
+    # env = Environment(obstacles=None)
+    env = Environment(obstacles=obs)
     # path = np.array([[20.5, 20.5],
-    #                  [20.5, 30.5],
-    #                  [30.5, 30.5],
-    #                  [30.5, 20.5],
-    #                  [60.5, 60.5]])
+    #                  [10.5, 40.5],
+    #                  [30.5, 60.5],
+    #                  [20.5, 80.5],
+    #                  [50.5, 80.5]])
     
     # start = path[0]
-    #append 20 goal state to the end of path
+    # #append 20 goal state to the end of path
     # end = path[-1]
-    # for i in range(20):
+    # for i in range(5):
     #     path = np.vstack([path, end])
 
 
     
     MPC_HORIZON = 5
-    # controller = MPC_Controller()
-    controller = Linear_MPC_Controller()
+    controller = MPC_Controller()
+    # controller = Linear_MPC_Controller()
 
     
     #############################################################################################
@@ -80,14 +82,18 @@ if __name__ == '__main__':
     # new_end, park_path, ensure_path1, ensure_path2 = park_path_planner.generate_park_scenario(int(start[0]),int(start[1]),int(end[0]),int(end[1]))
     
     print('routing to destination ...')
-    path = path_planner.plan_path(start[0],start[1],0,0,end[0],end[1],0,0,1)
+    path = path_planner.plan_path(start[0],start[1],0,0,end[0],end[1],np.pi/2,0,1)
+    # path = path[:,0:2]
     # path = np.vstack([path, ensure_path1])
+    # end = path[-1]
+    # for i in range(5):
+    #     path = np.vstack([path, end])
+
     interpolated_path = path
 
 
     # print('interpolating ...')
-    # interpolated_path = interpolate_path(path, sample_rate = 5)
-    # # interpolated_path = path
+    # interpolated_path = interpolate_path(path, sample_rate = 3)
     # interpolated_path = np.hstack([interpolated_path, np.zeros((len(interpolated_path),1))])
     # # Add a column at the end of the path for the car's orientation
     # # Set the orientation such that the current orientation heads toward next point
@@ -97,16 +103,21 @@ if __name__ == '__main__':
     # for i in range(len(interpolated_path)-1):
     #     interpolated_path[i,2] = angle_of_line(interpolated_path[i], interpolated_path[i+1])
     
-    # print("interpolated_path: ", interpolated_path)
+    # # print("interpolated_path: ", interpolated_path)
     # # Set the orientation of the last point to be the same as the second last point
     # interpolated_path[-1,2] = interpolated_path[-2,2]
-    # final_path = interpolated_path
-    # print("final_path: ", final_path)
+    final_path = interpolated_path
+    print("final_point:", final_path[-1,:])
+    # # print("final_path: ", final_path)
 
     # Save the final_path to a npy
     # np.save('final_path.npy', final_path)
+    # for i in range(final_path.shape[0]):
+    #     print("final_path x: ", final_path[i][0])
+    #     print("final_path y: ", final_path[i][1])
+    #     print("final_path psi: ", final_path[i][2])
 
-    env.draw_path(interpolated_path)
+    env.draw_path(final_path)
     # env.draw_path(interpolated_park_path)
 
     # final_path = np.vstack([interpolated_path, interpolated_park_path, ensure_path2])
@@ -130,6 +141,7 @@ if __name__ == '__main__':
     his_x = []
     his_y = []
     his_psi = []
+    print("final path shape: ", final_path.shape)
     while len(final_path) > 0:
         point = final_path[0]
         acc, delta = controller.optimize(my_car, final_path[0:MPC_HORIZON])
@@ -159,12 +171,12 @@ if __name__ == '__main__':
             # print("final_path: ", final_path)
 
     # Save history and ref to npy
-    np.save('his_x.npy', his_x)
-    np.save('his_y.npy', his_y)
-    np.save('his_psi.npy', his_psi)
-    np.save('ref_x.npy', ref_x)
-    np.save('ref_y.npy', ref_y)
-    np.save('ref_psi.npy', ref_psi)
+    # np.save('his_x.npy', his_x)
+    # np.save('his_y.npy', his_y)
+    # np.save('his_psi.npy', his_psi)
+    # np.save('ref_x.npy', ref_x)
+    # np.save('ref_y.npy', ref_y)
+    # np.save('ref_psi.npy', ref_psi)
 
     # for i,point in enumerate(final_path):
         
