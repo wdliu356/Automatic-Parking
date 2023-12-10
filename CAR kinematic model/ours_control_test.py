@@ -4,7 +4,7 @@ from time import sleep
 import argparse
 
 from environment import Environment, Parking1
-from pathplanning_h_astar import PathPlanning, interpolate_path
+from ours_h_astar import PathPlanning
 from bicycle_control import Car_Dynamics, MPC_Controller, Linear_MPC_Controller
 from utils import angle_of_line, make_square, DataLogger
 
@@ -68,8 +68,8 @@ if __name__ == '__main__':
 
     
     MPC_HORIZON = 5
-    # controller = MPC_Controller()
-    controller = Linear_MPC_Controller()
+    controller = MPC_Controller()
+    # controller = Linear_MPC_Controller()
 
     
     #############################################################################################
@@ -80,15 +80,21 @@ if __name__ == '__main__':
 
     # print('planning park scenario ...')
     # new_end, park_path, ensure_path1, ensure_path2 = park_path_planner.generate_park_scenario(int(start[0]),int(start[1]),int(end[0]),int(end[1]))
-    
+    end_psi = np.pi/2
     print('routing to destination ...')
-    path = path_planner.plan_path(start[0],start[1],0,0,41,32,np.pi/2,0,1)
+    path = path_planner.plan_path(start[0],start[1],0,0,end[0],end[1], end_psi,0,0.4)
     # path = path[:,0:2]
     # path = np.vstack([path, ensure_path1])
-    # end = path[-1]
+    end = path[-1]
+    
     # for i in range(5):
+    #     end[1] = end[1] + np.sign(end[2]) * 0.8
     #     path = np.vstack([path, end])
-
+    # new_end = path[-1]
+    # for i in range(5):
+    #     new_end[1] = new_end[1] - np.sign(new_end[2]) * 1.5
+    #     path = np.vstack([path, new_end])   
+    # print("path: ", path[-10:, :])
     interpolated_path = path
 
 
@@ -141,7 +147,7 @@ if __name__ == '__main__':
     his_x = []
     his_y = []
     his_psi = []
-    print("final path shape: ", final_path.shape)
+    # print("final path shape: ", final_path.shape)
     while len(final_path) > 0:
         point = final_path[0]
         acc, delta = controller.optimize(my_car, final_path[0:MPC_HORIZON])
@@ -193,8 +199,8 @@ if __name__ == '__main__':
     #         if key == ord('s'):
     #             cv2.imwrite('res.png', res*255)
 
-    print("acc_path_arr: ", acc_path_arr)
-    print("delta_path_arr: ", delta_path_arr)
+    # print("acc_path_arr: ", acc_path_arr)
+    # print("delta_path_arr: ", delta_path_arr)
 
     print("len of acc_path_arr: ", len(acc_path_arr))
     print("len of delta_path_arr: ", len(delta_path_arr))

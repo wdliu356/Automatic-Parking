@@ -85,8 +85,8 @@ class MPC_Controller:
     def __init__(self):
         self.horiz = None
         self.R = np.diag([0.01, 0.01])                 # input cost matrix
-        self.Rd = np.diag([0.01, 1.0])                 # input difference cost matrix
-        self.Q = np.diag([1.0, 1.0, 1.0])              # state cost matrix
+        self.Rd = np.diag([0.01, 0.01])                 # input difference cost matrix
+        self.Q = np.diag([1.0, 1.0, 50.0])              # state cost matrix
         self.Qf = self.Q                               # state final matrix
 
     def mpc_cost(self, u_k, my_car, points):

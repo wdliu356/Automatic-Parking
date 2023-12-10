@@ -2,3 +2,5 @@
 **/__pycache__/
 **/log results/
 **/result_analysis/
+log/
+.conda/
