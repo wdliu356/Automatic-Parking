@@ -13,12 +13,12 @@ An extra dependency for the Reeds-Shepp curve in Hybrid A* can be found in the r
 $ python ours_control_test.py --x_start 0 --y_start 90 --psi_start 0 --parking 7
 ```
 ### Input Argument
---x_start : x start position 
---y_start : y start position
---psi_start : start car orientation
---x_end : goal x position
---y_end : goal y position
---parking : park position in parking1 out of 24
+--x_start : x start position <br />
+--y_start : y start position <br />
+--psi_start : start car orientation <br />
+--x_end : goal x position <br />
+--y_end : goal y position <br />
+--parking : park position in parking1 out of 24 <br />
 
 
 ![automatic_parking_process](https://user-images.githubusercontent.com/56114938/128083454-60f8ba82-00a8-43a2-b8ad-8d4ad09cc762.gif)
@@ -31,11 +31,11 @@ Hybrid A* is implemented to find a path from the start to the park location, ext
 **The kinematic model** of the car is:
 ```math
 \left\{\begin{matrix}
-\dot{x} = v . cos(ψ+\beta)\\
-\dot{y} = v . sin(ψ+\beta)\\
+\dot{x} = v \cdot cos(ψ+\beta)\\
+\dot{y} = v \cdot sin(ψ+\beta)\\
 \dot{v} = a\\
-\dot{ψ} = v . sin(\beta)/L_r
-\beta = \arctan(\frac{L_r}{L_r + L_f} \arctan \delta
+\dot{ψ} = v/L_r \cdot sin(\beta) \\
+\beta = \arctan(\frac{L_r}{L_r + L_f} \arctan \delta) \\
 \end{matrix}\right.
 ```
 ```a: acceleration, δ: steering angle, ψ: yaw angle, L: wheelbase, x: x-position, y: y-position, v: velocity```
