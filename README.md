@@ -21,7 +21,7 @@ $ python ours_control_test.py --x_start 0 --y_start 90 --psi_start 0 --parking 7
 --parking : park position in parking1 out of 24 <br />
 
 
-![automatic_parking_process](https://user-images.githubusercontent.com/56114938/128083454-60f8ba82-00a8-43a2-b8ad-8d4ad09cc762.gif)
+![image](https://github.com/wdliu356/Automatic-Parking/blob/real_h_astar/extra/parking_demo_sample_1.gif)
 
 ## Path Planning
 #### Hybrid A* Algorithm
