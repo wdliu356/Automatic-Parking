@@ -5,7 +5,7 @@ This repository contains a Python implementation of an automatic parking system 
 
 ## Envroinment
 conda environment requirements are listed in ```requirements.txt```. 
-An extra dependency for the Reeds-Shepp curve in Hybrid A* can be found in the repository: ![link](https://github.com/zhm-real/CurvesGenerator)
+An extra dependency for the Reeds-Shepp curve in Hybrid A* can be found in the repository: !(https://github.com/zhm-real/CurvesGenerator)
 
 ## Parallel Parking
 ### Running command:
