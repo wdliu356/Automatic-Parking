@@ -131,6 +131,12 @@ if __name__ == '__main__':
     #############################################################################################
 
     ################################## control ##################################################
+    # size = (700, 700)
+    # fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    # # fourcc = cv2.VideoWriter_fourcc(*'mpv4')
+    # # fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+    # # fourcc = cv2.VideoWriter_fourcc('U', '2', '6', '3')
+    # videowrite = cv2.VideoWriter('/home/zlj/Documents/ROB599-Autonomous Vehicles/project/Automatic-Parking/CAR kinematic model/log results/cartoon.mp4', fourcc, 20, size)
     my_car = Car_Dynamics(start[0], start[1], 0, 0, length=4, dt=0.2, a=1.14)
     res = env.render(my_car.x, my_car.y, my_car.psi, 0)
     cv2.imshow('environment', res)
@@ -172,6 +178,7 @@ if __name__ == '__main__':
         key = cv2.waitKey(1)
         if key == ord('s'):
             cv2.imwrite('res.png', res*255)
+            print("yes")
         if my_car.goal_state_reached(point):
             final_path = final_path[1:]
             # print("final_path: ", final_path)
@@ -209,6 +216,8 @@ if __name__ == '__main__':
     logger.save_data()
     cv2.imshow('environment', res)
     key = cv2.waitKey()
+    # videowrite.write((res*255).astype(np.uint8))
+    # videowrite.release()
     #############################################################################################
 
     cv2.destroyAllWindows()

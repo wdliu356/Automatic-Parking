@@ -48,10 +48,10 @@ class Hybrid_AStarPlanner:
         self.calc_obstacle_map(ox, oy)
         self.length = length
         self.a = a
-        self.x_res = 2
-        self.y_res = 2
-        self.psi_res = 0.25*np.pi
-        self.v_res = 0.3
+        self.x_res = 1
+        self.y_res = 1
+        self.psi_res = 0.08*np.pi
+        self.v_res = 0.1
         self.maxSteerAngle = np.deg2rad(60)
 
 
