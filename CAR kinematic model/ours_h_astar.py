@@ -186,10 +186,10 @@ class Hybrid_AStarPlanner:
         # Steering Angle change cost
         steering_delta_cost = abs(motionCommand[0] - curr_node.psi) * Cost.steerAngleChange
         cost += steering_delta_cost
-        file_path = "/home/lidonghao/rob599proj/Automatic-Parking/log/action_cost.txt"
+        # file_path = "/home/lidonghao/rob599proj/Automatic-Parking/log/action_cost.txt"
 
-        with open(file_path, "a") as file:
-            file.write("Distance Cost: " + str(distance_cost) + ", Direction Cost: " + str(direction_cost) + ", Steering Cost: " + str(steering_cost) + ", Steering Delta Cost: " + str(steering_delta_cost) + "\n")
+        # with open(file_path, "a") as file:
+        #     file.write("Distance Cost: " + str(distance_cost) + ", Direction Cost: " + str(direction_cost) + ", Steering Cost: " + str(steering_cost) + ", Steering Delta Cost: " + str(steering_delta_cost) + "\n")
 
         return cost
     def state2idx(self, state):
@@ -318,9 +318,9 @@ class Hybrid_AStarPlanner:
 
             # Revove currentNode from openSet and add it to closedSet
             openSet.pop(currentNodeIndex)
-            path = "/home/lidonghao/rob599proj/Automatic-Parking/log/output.txt"
-            with open(path, "a") as file:
-                file.write("current x: " + str(currentNode.x) + ", current y: " + str(currentNode.y)+ "\n")
+            # path = "/home/lidonghao/rob599proj/Automatic-Parking/log/output.txt"
+            # with open(path, "a") as file:
+            #     file.write("current x: " + str(currentNode.x) + ", current y: " + str(currentNode.y)+ "\n")
 
             closedSet[currentNodeIndex] = currentNode
 
